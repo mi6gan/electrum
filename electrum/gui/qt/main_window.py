@@ -255,6 +255,8 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
             self._update_check_thread.checked.connect(on_version_received)
             self._update_check_thread.start()
 
+        self.tray.activated.connect(lambda _: self.show_or_hide())
+
     def on_history(self, b):
         self.wallet.clear_coin_price_cache()
         self.new_fx_history_signal.emit()
@@ -3251,6 +3253,10 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
 
     def closeEvent(self, event):
         # It seems in some rare cases this closeEvent() is called twice
+        if not self.is_hidden():
+            self.show_or_hide()
+            return
+
         if not self.cleaned_up:
             self.cleaned_up = True
             self.clean_up()
